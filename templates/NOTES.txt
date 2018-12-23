@@ -1,0 +1,18 @@
+1. Get the application URL by running these commands:
+{{- if .Values.guacamole.ingress.enabled }}
+{{- range .Values.guacamole.ingress.hosts }}
+  http{{ if $.Values.guacamole.ingress.tls }}s{{ end }}://{{ . }}{{ $.Values.guacamole.ingress.path }}
+{{- end }}
+{{- else if contains "NodePort" .Values.guacamole.service.type }}
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "guacamole.fullname" . }})
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$NODE_PORT
+{{- else if contains "LoadBalancer" .Values.guacamole.service.type }}
+     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+           You can watch the status of by running 'kubectl get svc -w {{ include "guacamole.fullname" . }}'
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "guacamole.fullname" . }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+  echo http://$SERVICE_IP:{{ .Values.guacamole.service.port }}
+{{- else if contains "ClusterIP" .Values.guacamole.service.type }}
+  kubectl --namespace {{ .Release.Namespace }} port-forward svc/guacamole 8080:80
+  and then visit http://localhost:8080/guacamole to use your application
+{{- end }}

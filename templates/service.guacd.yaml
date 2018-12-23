@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: guacd
+  labels:
+    app.kubernetes.io/name: guacd
+    helm.sh/chart: {{ include "guacamole.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  type: {{ .Values.guacd.service.type }}
+  ports:
+    - port: {{ .Values.guacd.service.port }}
+      targetPort: 4822
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: {{ include "guacamole.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}

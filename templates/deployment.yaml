@@ -1,0 +1,66 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ include "guacamole.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "guacamole.name" . }}
+    helm.sh/chart: {{ include "guacamole.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "guacamole.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "guacamole.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.guacamole.image.repository }}:{{ .Values.guacamole.image.tag }}"
+          imagePullPolicy: {{ .Values.guacamole.image.pullPolicy }}
+          env:
+          - name: MYSQL_HOSTNAME
+            value: "{{ .Release.Name }}-mysql"
+          - name: MYSQL_DATABASE
+            value: "guacamole_db"
+          - name: MYSQL_USER
+            value: "root"
+          - name: MYSQL_PASSWORD
+            value: "{{ .Values.mysql.mysqlRootPassword }}"
+          - name: MYSQL_PORT
+            value: "{{ .Values.guacamole.mysql.MYSQL_PORT }}"
+          - name: GUACD_HOSTNAME
+            value: "{{ .Values.guacd.nameOverride }}"
+          - name: GUACD_PORT
+            value: "{{ .Values.guacd.service.port }}"
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+{{ toYaml .Values.guacamole.resources | indent 12 }}
+    {{- with .Values.guacamole.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.guacamole.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.guacamole.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}

@@ -1,0 +1,43 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: guacd
+  labels:
+    app.kubernetes.io/name: {{ .Values.guacd.nameOverride }}
+    helm.sh/chart: {{ include "guacamole.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.guacd.nameOverride }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ .Values.guacd.nameOverride }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Values.guacd.nameOverride }}
+          image: "{{ .Values.guacd.image.repository }}:{{ .Values.guacd.image.tag }}"
+          imagePullPolicy: {{ .Values.guacd.image.pullPolicy }}
+          ports:
+            - name: guacd
+              containerPort: 4822
+              protocol: TCP
+          resources:
+{{ toYaml .Values.guacd.resources | indent 12 }}
+    {{- with .Values.guacd.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.guacd.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.guacd.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
