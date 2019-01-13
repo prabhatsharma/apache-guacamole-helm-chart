@@ -14,5 +14,5 @@ spec:
       targetPort: 4822
       protocol: TCP
   selector:
-    app.kubernetes.io/name: {{ include "guacamole.name" . }}
+    app.kubernetes.io/name: {{ .Values.guacd.nameOverride }}
     app.kubernetes.io/instance: {{ .Release.Name }}
