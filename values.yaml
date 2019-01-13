@@ -7,7 +7,7 @@ guacamole:
 
   image:
     repository: guacamole/guacamole
-    tag: 1.0.0-RC1
+    tag: 1.0.0
     pullPolicy: IfNotPresent
 
   nameOverride: ""
@@ -22,14 +22,14 @@ guacamole:
     MYSQL_PORT: 3306
 
   ingress:
-    enabled: false
-    annotations: 
-      kubernetes.io/ingress.class: nginx
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: traefik
       # certmanager.k8s.io/issuer: "letsencrypt-prod"
       # certmanager.k8s.io/acme-challenge-type: http01
     path: /
     hosts:
-      - guacamole.apache.org
+      - guacamole.corp.justin-tech.com
     # tls: []
     #  - secretName: chart-example-tls
     #    hosts:
@@ -58,7 +58,7 @@ guacd:
 
   image:
     repository: guacamole/guacd
-    tag: 1.0.0-RC1
+    tag: 1.0.0
     pullPolicy: IfNotPresent
 
   nameOverride: "guacd"
@@ -155,7 +155,7 @@ mysql:
     ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
     ##   GKE, AWS & OpenStack)
     ##
-    # storageClass: "-"
+    storageClass: "nfs-client"
     accessMode: ReadWriteOnce
     size: 8Gi
     annotations: {}
@@ -245,7 +245,7 @@ mysql:
       `connection_name`     varchar(128) NOT NULL,
       `parent_id`           int(11),
       `protocol`            varchar(32)  NOT NULL,
-      
+
       -- Guacamole proxy (guacd) overrides
       `proxy_port`              integer,
       `proxy_hostname`          varchar(512),
@@ -254,7 +254,7 @@ mysql:
       -- Concurrency limits
       `max_connections`          int(11),
       `max_connections_per_user` int(11),
-      
+
       -- Load-balancing behavior
       `connection_weight`        int(11),
       `failover_only`            boolean NOT NULL DEFAULT 0,
@@ -857,5 +857,5 @@ mysql:
 
 
 
-  
+
 
