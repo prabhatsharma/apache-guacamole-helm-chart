@@ -24,20 +24,22 @@ spec:
           image: "{{ .Values.guacamole.image.repository }}:{{ .Values.guacamole.image.tag }}"
           imagePullPolicy: {{ .Values.guacamole.image.pullPolicy }}
           env:
-          - name: MYSQL_HOSTNAME
-            value: "{{ .Release.Name }}-mysql"
-          - name: MYSQL_DATABASE
-            value: "guacamole_db"
-          - name: MYSQL_USER
-            value: "root"
-          - name: MYSQL_PASSWORD
-            value: "{{ .Values.mysql.mysqlRootPassword }}"
-          - name: MYSQL_PORT
-            value: "{{ .Values.guacamole.mysql.MYSQL_PORT }}"
-          - name: GUACD_HOSTNAME
-            value: "{{ .Values.guacd.nameOverride }}"
-          - name: GUACD_PORT
-            value: "{{ .Values.guacd.service.port }}"
+            - name: MYSQL_HOSTNAME
+              value: "{{ .Release.Name }}-mysql"
+            - name: MYSQL_DATABASE
+              value: "guacamole_db"
+            - name: MYSQL_USER
+              value: "root"
+            - name: MYSQL_PASSWORD
+              value: "{{ .Values.mysql.mysqlRootPassword }}"
+            - name: MYSQL_PORT
+              value: "{{ .Values.guacamole.mysql.MYSQL_PORT }}"
+            - name: GUACD_HOSTNAME
+              value: "{{ .Values.guacd.nameOverride }}"
+            - name: GUACD_PORT
+              value: "{{ .Values.guacd.service.port }}"
+            - name: GUACAMOLE_HOME
+              value: "/etc/guacamole"
           ports:
             - name: http
               containerPort: 8080
@@ -50,6 +52,15 @@ spec:
             httpGet:
               path: /
               port: http
+          volumeMounts:
+            {{- if .Values.guacamole.configurationFiles }}
+            - name: configurations
+              mountPath: /etc/guacamole
+            {{- end }}
+            {{- if .Values.guacamole.persistence.plugins.enabled }}
+            - name: plugins
+              mountPath: /etc/guacamole/extensions
+            {{- end }}
           resources:
 {{ toYaml .Values.guacamole.resources | indent 12 }}
     {{- with .Values.guacamole.nodeSelector }}
@@ -64,3 +75,14 @@ spec:
       tolerations:
 {{ toYaml . | indent 8 }}
     {{- end }}
+      volumes:
+      {{- if .Values.guacamole.configurationFiles }}
+        - name: configurations
+          configMap:
+            name: {{ template "guacamole.fullname" . }}-configuration
+      {{- end }}
+      {{- if .Values.guacamole.persistence.plugins.enabled }}
+        - name: plugins
+          persistentVolumeClaim:
+            claimName: {{ .Values.guacamole.persistence.plugins.existingClaim | default (include "guacamole.fullname" .) }}
+      {{- end -}}
