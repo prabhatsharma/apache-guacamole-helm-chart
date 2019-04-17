@@ -24,16 +24,16 @@ guacamole:
   ingress:
     enabled: true
     annotations:
-      kubernetes.io/ingress.class: traefik
-      # certmanager.k8s.io/issuer: "letsencrypt-prod"
-      # certmanager.k8s.io/acme-challenge-type: http01
+      ingress.kubernetes.io/ssl-redirect: "true"
+      kubernetes.io/tls-acme: "true"
+      kubernetes.io/ingress.class: nginx
+      certmanager.k8s.io/cluster-issuer: corp-justin-tech-com
     path: /
     hosts:
       - guacamole.corp.justin-tech.com
-    # tls: []
-    #  - secretName: chart-example-tls
-    #    hosts:
-    #      - chart-example.local
+    tls:
+    - hosts:
+      - guacamole.corp.justin-tech.com
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
@@ -46,6 +46,28 @@ guacamole:
     # requests:
     #  cpu: 100m
     #  memory: 128Mi
+
+  persistence:
+    plugins:
+      enabled: true
+      accessMode: ReadWriteOnce
+      size: 8Gi
+      storageClass: nfs-client
+      # existingClaim: existing-pvc
+
+  configurationFiles:
+    guacamole.properties: |-
+      enable-environment-properties: true
+      # # OIDC properties
+      # openid-authorization-endpoint:
+      # openid-jwks-endpoint:
+      # openid-issuer:
+      # openid-client-id: guacamole
+      # openid-redirect-uri:
+      # openid-username-claim-type: username
+      # openid-scope: openid email profile
+      # openid-allowed-clock-skew: 500
+
 
   nodeSelector: {}
 
@@ -101,9 +123,9 @@ mysql:
 
   ## Create a database user
   ##
-  # mysqlUser: guacamole
+  #mysqlUser: guacamole
   ## Default: random 10 character string
-  # mysqlPassword: guacamolePwd476
+  #mysqlPassword: changeme
 
   imagePullPolicy: IfNotPresent
 
@@ -854,8 +876,3 @@ mysql:
     JOIN guacamole_entity          ON permissions.username = guacamole_entity.name AND guacamole_entity.type = 'USER'
     JOIN guacamole_entity affected ON permissions.affected_username = affected.name AND guacamole_entity.type = 'USER'
     JOIN guacamole_user            ON guacamole_user.entity_id = affected.entity_id;
-
-
-
-
-
