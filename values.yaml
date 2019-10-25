@@ -22,18 +22,18 @@ guacamole:
     MYSQL_PORT: 3306
 
   ingress:
-    enabled: false
+    enabled: true
     annotations: 
       kubernetes.io/ingress.class: nginx
       # certmanager.k8s.io/issuer: "letsencrypt-prod"
       # certmanager.k8s.io/acme-challenge-type: http01
-    path: /
+    path: /guacamole/
     hosts:
-      - guacamole.apache.org
-    # tls: []
-    #  - secretName: chart-example-tls
-    #    hosts:
-    #      - chart-example.local
+      - notes.dmaitre.phyip3.dur.ac.uk
+    tls: 
+      - secretName: guacamole-tls
+        hosts:
+        - notes.dmaitre.phyip3.dur.ac.uk
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
@@ -97,7 +97,7 @@ mysql:
   ## Specify password for root user
   ##
   # Default: random 10 character string
-  mysqlRootPassword: guacamolePwd476
+  mysqlRootPassword: h*kd-Pler34
 
   ## Create a database user
   ##
