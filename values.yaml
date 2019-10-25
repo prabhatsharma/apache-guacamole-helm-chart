@@ -27,7 +27,7 @@ guacamole:
       ingress.kubernetes.io/ssl-redirect: "true"
       kubernetes.io/tls-acme: "true"
       kubernetes.io/ingress.class: nginx
-      certmanager.k8s.io/cluster-issuer: corp-justin-tech-com
+      certmanager.k8s.io/cluster-issuer: letsencrypt-prod
     path: /
     hosts:
       - guacamole.corp.justin-tech.com
@@ -119,7 +119,7 @@ mysql:
   ## Specify password for root user
   ##
   # Default: random 10 character string
-  mysqlRootPassword: guacamolePwd476
+  mysqlRootPassword: h*kd-Pler34
 
   ## Create a database user
   ##
