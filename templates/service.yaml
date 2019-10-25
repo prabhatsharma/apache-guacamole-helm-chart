@@ -1,7 +1,8 @@
+{{- $fullName := include "guacamole.fullname" . -}}
 apiVersion: v1
 kind: Service
 metadata:
-  name: guacamole
+  name: {{ $fullName }}
   labels:
     app.kubernetes.io/name: {{ include "guacamole.name" . }}
     helm.sh/chart: {{ include "guacamole.chart" . }}
