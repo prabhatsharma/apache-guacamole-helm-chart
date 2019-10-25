@@ -1,0 +1,24 @@
+{{- if and .Values.guacamole.persistence.plugins.enabled (not .Values.guacamole.persistence.plugins.existingClaim) }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "guacamole.fullname" . }}
+  labels:
+    app: {{ template "guacamole.name" . }}
+    chart: {{ template "guacamole.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  accessModes:
+    - {{ .Values.guacamole.persistence.plugins.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.guacamole.persistence.plugins.size | quote }}
+{{- if .Values.guacamole.persistence.plugins.storageClass }}
+{{- if (eq "-" .Values.guacamole.persistence.plugins.storageClass) }}
+  storageClassName: ""
+{{- else }}
+  storageClassName: "{{ .Values.guacamole.persistence.plugins.storageClass }}"
+{{- end }}
+{{- end }}
+{{- end }}
