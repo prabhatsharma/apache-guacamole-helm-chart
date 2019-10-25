@@ -7,7 +7,7 @@ guacamole:
 
   image:
     repository: guacamole/guacamole
-    tag: 1.0.0-RC1
+    tag: 1.0.0
     pullPolicy: IfNotPresent
 
   nameOverride: ""
@@ -23,17 +23,17 @@ guacamole:
 
   ingress:
     enabled: true
-    annotations: 
+    annotations:
+      ingress.kubernetes.io/ssl-redirect: "true"
+      kubernetes.io/tls-acme: "true"
       kubernetes.io/ingress.class: nginx
-      # certmanager.k8s.io/issuer: "letsencrypt-prod"
-      # certmanager.k8s.io/acme-challenge-type: http01
-    path: /guacamole/
+      certmanager.k8s.io/cluster-issuer: letsencrypt-prod
+    path: /
     hosts:
-      - notes.dmaitre.phyip3.dur.ac.uk
-    tls: 
-      - secretName: guacamole-tls
-        hosts:
-        - notes.dmaitre.phyip3.dur.ac.uk
+      - guacamole.corp.justin-tech.com
+    tls:
+    - hosts:
+      - guacamole.corp.justin-tech.com
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
@@ -47,6 +47,28 @@ guacamole:
     #  cpu: 100m
     #  memory: 128Mi
 
+  persistence:
+    plugins:
+      enabled: true
+      accessMode: ReadWriteOnce
+      size: 8Gi
+      storageClass: nfs-client
+      # existingClaim: existing-pvc
+
+  configurationFiles:
+    guacamole.properties: |-
+      enable-environment-properties: true
+      # # OIDC properties
+      # openid-authorization-endpoint:
+      # openid-jwks-endpoint:
+      # openid-issuer:
+      # openid-client-id: guacamole
+      # openid-redirect-uri:
+      # openid-username-claim-type: username
+      # openid-scope: openid email profile
+      # openid-allowed-clock-skew: 500
+
+
   nodeSelector: {}
 
   tolerations: []
@@ -58,7 +80,7 @@ guacd:
 
   image:
     repository: guacamole/guacd
-    tag: 1.0.0-RC1
+    tag: 1.0.0
     pullPolicy: IfNotPresent
 
   nameOverride: "guacd"
@@ -101,9 +123,9 @@ mysql:
 
   ## Create a database user
   ##
-  # mysqlUser: guacamole
+  #mysqlUser: guacamole
   ## Default: random 10 character string
-  # mysqlPassword: guacamolePwd476
+  #mysqlPassword: changeme
 
   imagePullPolicy: IfNotPresent
 
@@ -155,7 +177,7 @@ mysql:
     ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
     ##   GKE, AWS & OpenStack)
     ##
-    # storageClass: "-"
+    storageClass: "nfs-client"
     accessMode: ReadWriteOnce
     size: 8Gi
     annotations: {}
@@ -245,7 +267,7 @@ mysql:
       `connection_name`     varchar(128) NOT NULL,
       `parent_id`           int(11),
       `protocol`            varchar(32)  NOT NULL,
-      
+
       -- Guacamole proxy (guacd) overrides
       `proxy_port`              integer,
       `proxy_hostname`          varchar(512),
@@ -254,7 +276,7 @@ mysql:
       -- Concurrency limits
       `max_connections`          int(11),
       `max_connections_per_user` int(11),
-      
+
       -- Load-balancing behavior
       `connection_weight`        int(11),
       `failover_only`            boolean NOT NULL DEFAULT 0,
@@ -854,8 +876,3 @@ mysql:
     JOIN guacamole_entity          ON permissions.username = guacamole_entity.name AND guacamole_entity.type = 'USER'
     JOIN guacamole_entity affected ON permissions.affected_username = affected.name AND guacamole_entity.type = 'USER'
     JOIN guacamole_user            ON guacamole_user.entity_id = affected.entity_id;
-
-
-
-  
-
