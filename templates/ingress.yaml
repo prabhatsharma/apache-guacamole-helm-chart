@@ -1,7 +1,7 @@
 {{- if .Values.guacamole.ingress.enabled -}}
 {{- $fullName := include "guacamole.fullname" . -}}
 {{- $ingressPath := .Values.guacamole.ingress.path -}}
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: {{ $fullName }}
