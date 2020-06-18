@@ -27,6 +27,15 @@ guacamole:
       ingress.kubernetes.io/ssl-redirect: "true"
       kubernetes.io/tls-acme: "true"
       certmanager.k8s.io/cluster-issuer: letsencrypt-prod
+    paths: []
+    #  - backend:
+    #      serviceName: ssl-redirect
+    #      servicePort: use-annotation
+    #  - backend:
+    #      serviceName: >-
+    #        {{ include "guacamole.fullname" . }}
+    #      # Don't use string here, use only integer value!
+    #      servicePort: 443
       nginx.ingress.kubernetes.io/proxy-buffering: "off"
     path: /
     hosts:
@@ -74,6 +83,9 @@ guacamole:
   tolerations: []
 
   affinity: {}
+
+  # Change this to ROOT to get rid of the /guacamole prefix
+  webapp_context: guacamole
 
 guacd:
   replicaCount: 1

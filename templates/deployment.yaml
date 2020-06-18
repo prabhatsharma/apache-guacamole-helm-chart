@@ -40,6 +40,8 @@ spec:
               value: "{{ .Values.guacd.service.port }}"
             - name: GUACAMOLE_HOME
               value: "/etc/guacamole"
+            - name: WEBAPP_CONTEXT
+              value: "{{ .Values.guacamole.webapp_context }}"
           ports:
             - name: http
               containerPort: 8080
