@@ -30,9 +30,13 @@ spec:
     - host: {{ . | quote }}
       http:
         paths:
+        {{- if len ($.Values.guacamole.ingress.paths) }}
+          {{- "\n" }}{{ tpl (toYaml $.Values.guacamole.ingress.paths | indent 10) $ }}
+        {{- else }}
           - path: {{ $ingressPath }}
             backend:
               serviceName: {{ $fullName }}
               servicePort: http
+        {{- end }}
   {{- end }}
 {{- end }}
